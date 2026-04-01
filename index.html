@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>试用期转正业务审批流程</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #002D28 0%, #00726D 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #002D28 0%, #00726D 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .trigger-info {
+            background: rgba(203, 228, 225, 0.2);
+            padding: 15px 30px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 10px;
+            border: 2px solid #CBE4E1;
+        }
+
+        .trigger-info strong {
+            color: #CEA472;
+            font-size: 18px;
+        }
+
+        .content-wrapper {
+            display: flex;
+            height: calc(100vh - 200px);
+            min-height: 600px;
+        }
+
+        /* 左侧流程区域 */
+        .workflow-section {
+            width: 35%;
+            background: #CBE4E1;
+            padding: 30px;
+            overflow-y: auto;
+            border-right: 3px solid #00726D;
+        }
+
+        .workflow-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #002D28;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #00726D;
+        }
+
+        .flow-step {
+            position: relative;
+            margin-bottom: 25px;
+            padding-left: 50px;
+        }
+
+        .flow-step::before {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 40px;
+            bottom: -25px;
+            width: 3px;
+            background: #00726D;
+        }
+
+        .flow-step:last-child::before {
+            display: none;
+        }
+
+        .step-circle {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00726D, #002D28);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(0, 114, 109, 0.3);
+        }
+
+        .step-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            border-left: 4px solid #00726D;
+        }
+
+        .step-box:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 114, 109, 0.2);
+        }
+
+        .step-box.active {
+            border-left-color: #CEA472;
+            background: linear-gradient(to right, #E1BE98 0%, white 100%);
+        }
+
+        .step-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #002D28;
+            margin-bottom: 8px;
+        }
+
+        .step-desc {
+            font-size: 14px;
+            color: #666666;
+            line-height: 1.6;
+        }
+
+        /* 右侧详情区域 */
+        .detail-section {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: #f9f9f9;
+        }
+
+        .detail-panel {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .detail-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .panel-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #002D28;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #00726D;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #00726D;
+        }
+
+        .card-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00726D;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            width: 24px;
+            height: 24px;
+            background: #CBE4E1;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00726D;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid #CBE4E1;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: #666666;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            color: #002D28;
+            font-weight: 500;
+        }
+
+        .evaluation-content {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #CBE4E1;
+            line-height: 1.8;
+            color: #333;
+            min-height: 150px;
+        }
+
+        .warning-banner {
+            background: linear-gradient(135deg, #CEA472, #E1BE98);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 15px;
+            line-height: 1.8;
+            box-shadow: 0 4px 15px rgba(206, 164, 114, 0.3);
+            border: 2px solid #CEA472;
+        }
+
+        .warning-banner strong {
+            font-size: 18px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .action-bar {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #CBE4E1;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00726D, #002D28);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 114, 109, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #00726D;
+            border: 2px solid #00726D;
+        }
+
+        .btn-secondary:hover {
+            background: #CBE4E1;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #CEA472, #E1BE98);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(206, 164, 114, 0.3);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.3);
+        }
+
+        .meta-info {
+            background: #E1BE98;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: #002D28;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: bold;
+            color: #002D28;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-required {
+            color: #dc3545;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #CBE4E1;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #00726D;
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #CBE4E1;
+            color: #002D28;
+        }
+
+        .badge-source {
+            background: #E1BE98;
+            color: #002D28;
+        }
+
+        @media (max-width: 1024px) {
+            .content-wrapper {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .workflow-section {
+                width: 100%;
+                border-right: none;
+                border-bottom: 3px solid #00726D;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-bar {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>试用期转正业务审批流程</h1>
+            <div class="trigger-info">
+                <strong>⏰ 自动触发条件：</strong>员工入职第 135 天由人力资源虚拟节点自动触发
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <!-- 左侧：流程步骤 -->
+            <div class="workflow-section">
+                <div class="workflow-title">审批流程</div>
+
+                <div class="flow-step">
+                    <div class="step-circle">0</div>
+                    <div class="step-box" onclick="showPanel('trigger')">
+                        <div class="step-name">流程触发</div>
+                        <div class="step-desc">人力资源虚拟节点自动触发</div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-circle">1</div>
+                    <div class="step-box active" onclick="showPanel('direct-manager')">
+                        <div class="step-name">直属上级审批</div>
+                        <div class="step-desc">上级评价、考核打分</div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-circle">2</div>
+                    <div class="step-box" onclick="showPanel('hrbp')">
+                        <div class="step-name">HRBP 审批</div>
+                        <div class="step-desc">人力资源业务合作伙伴审核</div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-circle">3</div>
+                    <div class="step-box" onclick="showPanel('hierarchy')">
+                        <div class="step-name">逐级审批</div>
+                        <div class="step-desc">上级领导逐级审批确认</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：详情展示 -->
+            <div class="detail-section">
+                <!-- 流程触发面板 -->
+                <div id="panel-trigger" class="detail-panel">
+                    <div class="panel-title">流程触发节点</div>
+
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">🚀</div>
+                            触发条件
+                        </div>
+                        <div class="evaluation-content">
+                            当员工入职满 <strong style="color: #00726D; font-size: 18px;">135 天</strong> 时，系统将自动触发试用期转正业务审批流程。<br><br>
+                            触发后，流程进入第一个审批节点：<strong style="color: #00726D;">直属上级审批</strong>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">📋</div>
+                            页面构成说明
+                        </div>
+                        <div style="line-height: 2; padding: 10px;">
+                            <div>✓ <strong>员工基础信息</strong> - 工号、部门、岗位、职级等基本信息</div>
+                            <div>✓ <strong>员工自评内容</strong> - 从另一个平台抓取的员工转正自评表</div>
+                            <div>✓ <strong>上级评价内容</strong> - 审批人填写的评价和考核结论</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 直属上级审批面板 -->
+                <div id="panel-direct-manager" class="detail-panel active">
+                    <div class="panel-title">直属上级审批</div>
+
+                    <!-- 培养任务警告 -->
+                    <div class="warning-banner">
+                        <strong>⚠️ 重要提示</strong>
+                        该员工入职培养任务【新员工产品培训】【系统操作考核】未在规定时间完成。<br>
+                        如同意转正，即该员工未完成培养任务仍推进转正流程，请如实陈述批准转正的理由。
+                    </div>
+
+                    <!-- 员工基础信息 -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">👤</div>
+                            员工基础信息
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">转正人员</div>
+                                <div class="info-value">张三</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">员工工号</div>
+                                <div class="info-value">EMP20240001</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">部门</div>
+                                <div class="info-value">技术研发部</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">岗位</div>
+                                <div class="info-value">高级软件工程师</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">新职级</div>
+                                <div class="info-value">P6</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">入职日期</div>
+                                <div class="info-value">2024-10-01</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">试用期结束日期</div>
+                                <div class="info-value">2025-03-31</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">直接上级</div>
+                                <div class="info-value">李经理</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 员工自评内容 -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">✍️</div>
+                            员工自评内容
+                            <span class="badge badge-source">从另一平台抓取</span>
+                        </div>
+                        <div class="evaluation-content">
+                            在过去的试用期内，我主要负责了XX系统的后端开发工作。完成了用户管理模块、权限控制模块的设计与实现，并参与了数据库优化工作。通过这段时间的学习和实践，我对公司的技术栈和业务流程有了深入的了解，能够独立完成开发任务。<br><br>
+
+                            主要成果：<br>
+                            1. 完成3个核心功能模块的开发<br>
+                            2. 解决了10+个生产环境bug<br>
+                            3. 代码审查通过率95%以上<br>
+                            4. 按时交付所有分配的任务<br><br>
+
+                            未来计划：继续深入学习公司技术架构，提升系统设计能力，为团队做出更大贡献。
+                        </div>
+                        <div class="meta-info">
+                            📅 最近提交时间：2025-03-14 10:30:25
+                        </div>
+                        <div class="action-bar">
+                            <button class="btn btn-danger" onclick="alert('弹出退回理由输入框')">
+                                ↩️ 退回自评
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 上级评价内容 -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">📝</div>
+                            上级评价内容
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                考核结论 <span class="form-required">*</span>
+                            </label>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="agree" name="conclusion" value="agree" checked>
+                                    <label for="agree">同意转正</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="disagree" name="conclusion" value="disagree">
+                                    <label for="disagree">不同意转正</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                评价文字 <span class="form-required">*</span>
+                                <span style="font-weight: normal; color: #666;">（必填，包含特批理由，至少1个字）</span>
+                            </label>
+                            <textarea class="form-control" placeholder="请输入评价内容，如有特批情况（如培养任务未完成），请详细说明批准转正的理由..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                评分 <span class="form-required">*</span>
+                            </label>
+                            <input type="number" class="form-control" placeholder="请输入评分（如：85）" min="0" max="100">
+                        </div>
+
+                        <div class="action-bar">
+                            <button class="btn btn-primary">✓ 提交</button>
+                            <button class="btn btn-secondary">💾 暂存</button>
+                            <button class="btn btn-secondary">➕ 加签</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HRBP审批面板 -->
+                <div id="panel-hrbp" class="detail-panel">
+                    <div class="panel-title">HRBP 审批</div>
+
+                    <!-- 员工基础信息 -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">👤</div>
+                            员工基础信息
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">转正人员</div>
+                                <div class="info-value">张三</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">员工工号</div>
+                                <div class="info-value">EMP20240001</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">部门</div>
+                                <div class="info-value">技术研发部</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">岗位</div>
+                                <div class="info-value">高级软件工程师</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 员工自评内容 -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">✍️</div>
+                            员工自评内容
+                            <span class="badge badge-source">从另一平台抓取</span>
+                        </div>
+                        <div class="evaluation-content">
+                            在过去的试用期内，我主要负责了XX系统的后端开发工作。完成了用户管理模块、权限控制模块的设计与实现...
+                        </div>
+                        <div class="meta-info">
+                            📅 提交时间：2025-03-14 10:30:25
+                        </div>
+                        <div class="action-bar">
+                            <button class="btn btn-danger" onclick="alert('弹出退回理由输入框')">
+                                ↩️ 退回自评
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 直属上级评价 -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">📋</div>
+                            直属上级评价
+                        </div>
+                        <div class="info-item" style="margin-bottom: 10px;">
+                            <div class="info-label">考核结论</div>
+                            <div class="info-value">✓ 同意转正</div>
+                        </div>
+                        <div class="info-item" style="margin-bottom: 10px;">
+                            <div class="info-label">评分</div>
+                            <div class="info-value">85 分</div>
+                        </div>
+                        <div class="evaluation-content">
+                            该员工在试用期表现优秀，技术能力强，能够独立完成开发任务。虽然部分培养任务因项目紧急未能按时完成，但不影响其整体工作表现，建议同意转正。
+                        </div>
+                    </div>
+
+                    <!-- HRBP审批操作 -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">✅</div>
+                            HRBP 审批操作
+                        </div>
+                        <div class="action-bar">
+                            <button class="btn btn-primary">✓ 同意</button>
+                            <button class="btn btn-danger">↩️ 退回</button>
+                            <button class="btn btn-secondary">➕ 加签</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 逐级审批面板 -->
+                <div id="panel-hierarchy" class="detail-panel">
+                    <div class="panel-title">逐级审批</div>
+
+                    <!-- 员工基础信息 -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">👤</div>
+                            员工基础信息
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">转正人员</div>
+                                <div class="info-value">张三</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">员工工号</div>
+                                <div class="info-value">EMP20240001</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">部门</div>
+                                <div class="info-value">技术研发部</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">岗位</div>
+                                <div class="info-value">高级软件工程师</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 员工自评内容 -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">✍️</div>
+                            员工自评内容
+                            <span class="badge badge-source">从另一平台抓取</span>
+                        </div>
+                        <div class="evaluation-content">
+                            在过去的试用期内，我主要负责了XX系统的后端开发工作。完成了用户管理模块、权限控制模块的设计与实现...
+                        </div>
+                        <div class="meta-info">
+                            📅 提交时间：2025-03-14 10:30:25
+                        </div>
+                        <div class="action-bar">
+                            <button class="btn btn-danger" onclick="alert('弹出退回理由输入框')">
+                                ↩️ 退回自评
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 审批历史 -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">📜</div>
+                            审批历史
+                        </div>
+                        <div style="padding: 10px 0;">
+                            <div class="info-item" style="margin-bottom: 15px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <strong style="color: #00726D;">直属上级 - 李经理</strong>
+                                    <span class="badge">已通过</span>
+                                </div>
+                                <div class="info-label">考核结论：同意转正 | 评分：85分</div>
+                                <div class="evaluation-content" style="margin-top: 8px;">
+                                    该员工在试用期表现优秀，技术能力强，能够独立完成开发任务。
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <strong style="color: #00726D;">HRBP - 王HR</strong>
+                                    <span class="badge">已通过</span>
+                                </div>
+                                <div class="info-label">审核通过，材料齐全，符合转正条件</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 逐级审批操作 -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">🔝</div>
+                            上级领导审批
+                        </div>
+                        <div class="action-bar">
+                            <button class="btn btn-primary">✓ 同意</button>
+                            <button class="btn btn-danger">↩️ 退回</button>
+                            <button class="btn btn-secondary">➕ 加签</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showPanel(panelName) {
+            // 隐藏所有面板
+            document.querySelectorAll('.detail-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+
+            // 移除所有步骤的激活状态
+            document.querySelectorAll('.step-box').forEach(box => {
+                box.classList.remove('active');
+            });
+
+            // 显示选中的面板
+            document.getElementById('panel-' + panelName).classList.add('active');
+
+            // 激活选中的步骤
+            event.currentTarget.classList.add('active');
+        }
+
+        // 添加按钮点击动画效果
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (!this.onclick) {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
